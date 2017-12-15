@@ -1,0 +1,12 @@
+[ 2017-12-07T09:17:59+08:00 ] 192.168.2.159 /zg_crm/zg_test/index.php/Home/Tasks/get_tasks
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000000s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000500s ]
+ERR: 无法加载模块:Zg_test
+
+[ 2017-12-07T09:18:09+08:00 ] 192.168.2.159 /zg_crm/zg_test/index.php/Home/Tasks/get_tasks
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000000s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000500s ]
+ERR: 无法加载模块:Zg_test
+
