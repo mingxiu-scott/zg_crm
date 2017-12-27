@@ -14,6 +14,7 @@ class OrdersController extends Controller{
     /**
      * 录理财
      */
+
 	public function create_order()
 	{
 		//获取前段数据
@@ -26,6 +27,10 @@ class OrdersController extends Controller{
 		$o_returnMoney = I('post.o_returnMoney','');
 		$o_welfare     = I('post.o_welfare','');
 		$o_remark      = I('post.o_remark','');
+        $c_idcard      = I('post.c_idcard', '');
+        $c_bankname    = I('post.c_bankname', '');
+        $c_bankcard    = I('post.c_bankcard', '');
+
 
 		//组织sign
 		$sign = '{o_gettime:"'.$o_gettime.'"},'.
@@ -36,12 +41,15 @@ class OrdersController extends Controller{
 				'{o_endTime:"'.$o_endTime.'"},'.
 				'{o_returnMoney:"'.$o_returnMoney.'"},'.
 				'{o_welfare:"'.$o_welfare.'"},'.
-				'{o_remark:"'.$o_remark.'"},';
+				'{o_remark:"'.$o_remark.'"},'.
+                '{c_idcard:"'.$c_idcard.'"},'.
+                '{c_bankname:"'.$c_bankname.'"},'.
+                '{c_bankcard:"'.$c_bankcard.'"},';
 
 		$sign    = $sign.C('SIGNCODE');
+
 		$signVal = md5($sign);
 
-		//验证sign
 		if ($_POST['signVal'] != $signVal)
 		{
 			$returnMessage = array('code'=> 'error', 'message' => '非法操作');
@@ -64,17 +72,32 @@ class OrdersController extends Controller{
 		$data['o_welfare']      = $o_welfare;
 		$data['o_desc']         = $o_remark;
 		$data['create_time']    = date("Y-m-d H:i:s", time());
+        $data['g_name']         = $o_name;
+        //添加部分开始
+       $whereCustom['c_id']        = I('customId',1);
+        $data2['c_idcard']     = $c_idcard;
+        $data2['c_bankname']   = $c_bankname;
+        $data2['c_bankcard']   = $c_bankcard;
+        //添加部分结束
 
-		$Order = M("orders"); // 实例化Order对象
+ 		$Order = M("orders"); // 实例化Order对象
 		$res = $Order->data($data)->add();
 
-		if($Order)
+		//添加部分开始
+		$Custom = M("customs");//实例化Customs对象
+        $res2 = $Custom->where($whereCustom)->save($data2);
+        //添加部分结束
+
+        if(!empty($o_welfare)){
+            $res3 = M('welfare')->where('w_id='.$o_welfare)->setDec('w_number',1);
+        }
+
+		if($res)
 		{
 		    $returnMessage = array('code'=> 'success', 'message' => '添加产品成功了',);
 		    echo json_encode($returnMessage);
 		    exit;
 		}else{
-			
 		    $returnMessage = array('code'=> 'fail', 'message' => '添加产品失败，请重试');	
 		    echo json_encode($returnMessage);
 		    exit;
@@ -99,14 +122,13 @@ class OrdersController extends Controller{
 		$whereOrderList['u_id']   = $u_id;
 		$whereOrderList['o_date'] = array('like', $date.'%');		
         $orderView = M('orderslist_view');
-        $orderList = $orderView->where($whereOrderList)->select();
+        $orderList = $orderView->where($whereOrderList)->order('o_date desc')->select();
         
         if ($orderList) 
         {
             echo json_encode($orderList);
             exit;
         } else {
-        	
             $returnMessage = array('code' => 'fail', 'message' => '无结果');
             echo json_encode($returnMessage);
             exit;
