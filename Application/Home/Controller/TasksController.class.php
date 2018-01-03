@@ -21,6 +21,9 @@ class TasksController extends Controller{
         $c_name   = I('post.c_name','');
         $t_desc   = I('post.t_desc','');
         $t_status = I('post.t_status','');
+        $c_id_in  = I('post.c_id','');
+        $t_endtime= I('post.t_endtime','');
+        $t_xiashu_id = I('post.xiashu_id');
 
        //组织sign
         $sign = '{t_name:"'.$t_name.'"},'.
@@ -40,20 +43,14 @@ class TasksController extends Controller{
         }
 
         //数据操作
-        if($t_status == 'true'){
-            $new_t_status = 1;
-        }else{
-            $new_t_status = 0;
-        }
-
-//        echo json_encode(array('message'=>$t_status.'=='.$new_t_status));exit();
+        $new_t_status = 0;
 
         $u_id = I('userId','');
 
-        $c_id = 1;
+        $c_id = $c_id_in;
 
         $data['c_id'] = $c_id;
-        $data['u_id'] = $u_id;
+        $data['u_id'] = $t_xiashu_id;
 
         $data['create_time']  = date("Y-m-d H:i:s", time());
         $data['t_date']       = $t_date;
@@ -61,6 +58,7 @@ class TasksController extends Controller{
         $data['t_desc'] = $t_desc;
         $data['t_name'] = $t_name;
         $data['t_status'] = $new_t_status;
+        $data['t_endtime'] = $t_endtime;
 
         $res = M('tasks')->add($data);
 
@@ -79,24 +77,32 @@ class TasksController extends Controller{
      * 获得日志内容
      */
     public function get_tasks(){
-    	
-    	$userId = I('post.userId', 0);
-    	$date   = I('post.date', date("Y-m", time()));
-    	
+
+    	$userId   = I('post.userId', 0);
+    	$date     = I('post.date', date("Y-m", time()));
+        $t_status = I('post.t_status',2);
+
+
     	if ($userId == 0){
     		$returnMessage = array('code'=> 'fail', 'message' => '非法操作');
     		echo json_encode($returnMessage);
     		exit;
     	}
+
+
+    	if ($t_status != 2){
+    	    $where['t_status'] = $t_status;
+        }
     	
     	$where['u_id']    = $userId;
     	$where['t_date'] = array('like', $date.'%');
-    	
+
         $taskList = M('taskslist_view')->where($where)->order("t_date desc")->select();
         echo json_encode(array('dataValue'=>$taskList));
     }
 
     public function get_one_task(){
+
         $t_id = I('post.t_id','');
 
         $condition = array('t_id'=> $t_id);
@@ -104,18 +110,21 @@ class TasksController extends Controller{
         $task = M('tasks')->where($condition)->find();
 
         echo json_encode(array('dataValue'=>$task));
+
     }
 
     public function edit_task(){
 
-        $t_id     = I('post.t_id');
-        $u_id     = I('post.u_id');
-        $c_id     = I('post.c_id');
-        $t_name   = I('post.t_name','');
-        $t_date   = I('post.t_date','');
-        $c_name   = I('post.c_name','');
-        $t_desc   = I('post.t_desc','');
-        $t_status = I('post.t_status','');
+        $t_id         = I('post.t_id');
+        $u_id         = I('post.u_id');
+        $c_id         = I('post.c_id');
+        $t_name       = I('post.t_name','');
+        $t_date       = I('post.t_date','');
+        $c_name       = I('post.c_name','');
+        $t_desc       = I('post.t_desc','');
+        $t_status     = I('post.t_status','');
+        $t_finishtime = I('post.t_finishtime','');
+        $t_feedback   = I('t_feedback','');
 
         //组织sign
         $sign = '{t_name:"'.$t_name.'"},'.
@@ -136,28 +145,22 @@ class TasksController extends Controller{
             echo json_encode($returnMessage);
             exit;
         }
-
-        //数据操作
-        if($t_status == 'true'){
-            $new_t_status = 1;
-        }else{
+        if($t_status == '未完成'){
             $new_t_status = 0;
+        }else{
+            $new_t_status = 1;
         }
-
-//        echo json_encode(array('message'=>$t_status.'=='.$new_t_status));exit();
-
-        //条件
-
         $condition['t_id'] = $t_id;
         $condition['c_id'] = $c_id;
         $condition['u_id'] = $u_id;
 
-        $data['create_time']  = date("Y-m-d H:i:s", time());
         $data['t_date']       = $t_date;
         $data['c_name']       = $c_name;
         $data['t_desc']       = $t_desc;
         $data['t_name']       = $t_name;
         $data['t_status']     = $new_t_status;
+        $data['t_feedback']   = $t_feedback;
+        $data['t_finishtime'] = $t_finishtime;
 
         $res = M('tasks')->where($condition)->save($data);
 
@@ -170,7 +173,6 @@ class TasksController extends Controller{
             echo json_encode($returnMessage);
             exit;
         }
-
     }
 
     public function delete_task(){

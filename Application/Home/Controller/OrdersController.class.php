@@ -153,7 +153,13 @@ class OrdersController extends Controller{
         $whereOrder['o_id'] = $o_id;
         $orderView = M('orderslist_view');
         $orderInfo = $orderView->where($whereOrder)->find();
-        
+
+
+        if (!empty($orderInfo['o_welfare'])){
+            $welfare_id = M('welfare')->where('w_id='.$orderInfo['o_welfare'])->find();
+            $orderInfo = $orderInfo + $welfare_id;
+        }
+
         if ($orderInfo) 
         {
             echo json_encode($orderInfo);
@@ -269,10 +275,6 @@ class OrdersController extends Controller{
         }
     }
 
-//        public function editReturn(){
-//
-//        }
-
 	public function sureReturn()
 	{
 	
@@ -347,6 +349,5 @@ class OrdersController extends Controller{
 		$array['followsCount'] = $followsCount;
 		
 		echo json_encode($array);
-		
 	}
 }
