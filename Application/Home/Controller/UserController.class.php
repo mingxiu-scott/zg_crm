@@ -1,9 +1,10 @@
 <?php
 namespace Home\Controller;
 use Think\Controller;
+use Think\Model;
 
 class UserController extends Controller {
-	
+
 	public function login(){
         $username = I('post.username','');
         $password = I('post.password','');
@@ -32,7 +33,7 @@ class UserController extends Controller {
             if ($password != $usernameRes['u_password']){
                 $returnMessage = array('code'=> '1', 'message' => '密码不正确');
             }else{
-                $returnMessage = array('code'=> '2', 'message' => '登录成功','u_id'=>$usernameRes['u_id']);
+                $returnMessage = array('code'=> '2', 'message' => '登录成功','u_id'=>$usernameRes['u_id'],'r_id'=>$usernameRes['r_id']);
             }
             echo json_encode($returnMessage);
             exit;
@@ -42,7 +43,7 @@ class UserController extends Controller {
             exit;
         }
     }
-	
+
 	/**
 	 * 得到下属列表
 	 */
@@ -50,25 +51,25 @@ class UserController extends Controller {
 	{
 		$uid = I('post.userId', 1);
 		$UserModel = M('users');
-		
+
 		$whereUserRid['u_id'] =  $uid;
 		$r_id = $UserModel->where($whereUserRid)->getField('r_id');
-		
+
 		$whereUserList['r_id'] = array('like', $r_id.'%');
 		$userList = $UserModel->field('u_id, u_name')->where($whereUserList)->select();
-		
+
 		$userArray = Array();
-		
+
 		foreach($userList as $key => $val){
-	
+
 			$u_id = $val['u_id'];
 			$u_name = $val['u_name'];
 			$userArray[$u_id] = $u_name;
 		}
-		
+
 		echo json_encode($userArray);
 	}
-	
+
 	public function getUsers(){
 
         $u_id = I('post.userId','1');
@@ -121,6 +122,117 @@ class UserController extends Controller {
             echo json_encode($returnMessage);
             exit;
         }
+    }
+
+    public function getUsersListsJson2()
+    {
+        $uid = I('post.userId', 1);
+
+        $xiashuID = I('post.xiashuID','');
+
+        //添加部分开始
+        //如果有下属姓名输入
+        if(I('post.search_cname') && I('post.search_cname') != ''){
+            $uname = I('post.search_cname');
+            $whereUserList['u_name'] = array('like','%'.$uname.'%');
+        }
+
+        $UserModel = M('user_roles_view');
+
+        $whereUserRid['u_id'] =  $uid;
+
+        $r_id = $UserModel->where($whereUserRid)->getField('r_id');
+
+        if ($xiashuID != 'test'){
+            $whereUserList['r_id'] = array('like', $r_id.'_%');
+        }
+
+        $userList = $UserModel->distinct(true)->field('u_id, u_name')->where($whereUserList)->select();
+
+        echo json_encode($userList);
+    }
+
+    public function create_user(){
+
+        $u_name = I('post.u_name','');
+        $u_username = I('post.u_username','');
+        $u_telphone = I('post.u_telphone','');
+        $u_age = I('post.u_age','');
+
+        $sign =
+            '{u_username:"'. $u_username . '"},'.
+            '{l_name:"'. $u_name . '"},'.
+            '{u_telphone:"'. $u_telphone . '"},'.
+            '{u_age:"'. $u_age .'"},';
+
+        $sign    = $sign.C('SIGNCODE');
+
+        $signVal = md5($sign);
+
+        if ($_POST['signVal'] != $signVal){
+                $returnMessage = array('code'=> 'error', 'message' => '非法操作');
+            echo json_encode($returnMessage);
+            exit;
+        }
+
+        $data['u_username'] = $u_username;
+        $data['u_password'] = '123456';
+        $data['u_telphone'] = $u_telphone;
+        $data['u_name'] = $u_name;
+
+        $res = M('users')->add($data);
+
+        if ($res){
+            $returnMessage = array('code'=> 'success', 'message' => '添加成功');
+            echo json_encode($returnMessage);
+            exit;
+        }else{
+            $returnMessage = array('code'=> 'fail', 'message' => '添加，请重试');
+            echo json_encode($returnMessage);
+            exit;
+        }
 
     }
+
+    public function create_user_role(){
+
+        $u_id = I('post.u_id','');
+        $s_id = I('post.s_id','');
+        $r_id = I('post.r_id','');
+
+        $sign =
+            '{u_id:"' . $u_id . '"},' .
+            '{s_id:"' . $s_id . '"},' .
+            '{r_id:"' . $r_id . '"},' ;
+
+        $sign    = $sign.C('SIGNCODE');
+
+
+        $signVal = md5($sign);
+
+        if ($_POST['signVal'] != $signVal){
+            $returnMessage = array('code'=> 'error', 'message' => '非法操作');
+            echo json_encode($returnMessage);
+            exit;
+        }
+
+        $data1['s_id'] = $s_id;
+
+         $data['r_id'] = $r_id;
+         $data['u_id'] = $u_id;
+
+         $res2 = M('users')->where('u_id='.$u_id)->save($data1);
+        $res = M('role_user')->add($data);
+
+        if ($res){
+            $returnMessage = array('code'=> 'success', 'message' => '添加成功');
+            echo json_encode($returnMessage);
+            exit;
+        }else{
+            $returnMessage = array('code'=> 'fail', 'message' => '添加失败，请重试');
+            echo json_encode($returnMessage);
+            exit;
+        }
+    }
+
 }

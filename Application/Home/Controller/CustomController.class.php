@@ -110,7 +110,7 @@ class CustomController extends Controller {
 	
 		$whereCustom['u_id'] = $u_id;
 		$customsList = M('customlist_view')->where($whereCustom)->select();
-		//$customsList = array('code'=> 'fail', 'message' => '添加失败，请重试');
+
 		$array = array('dataValue'=>$customsList);
 		echo json_encode($array);		
 	}	
@@ -185,14 +185,7 @@ class CustomController extends Controller {
 		$whereUser['u_state'] = 1;
 		$token = M('users')->where($whereUser)->getField('token');
 		$s_id  = 1;
-		/*
-		 if ($_POST['tokenVal'] != $token)
-		 {
-		 $returnMessage = array('code'=> 'error', 'message' => '非法操作');
-		 echo json_encode($returnMessage);
-		 exit;
-		 }
-		 */
+
 		
 		// 操作数据
 		$data['c_name']       = $c_name;
@@ -227,7 +220,5 @@ class CustomController extends Controller {
 			echo json_encode($returnMessage);
 			exit;
 		}
-
-		//i don think so 
 	}
 }

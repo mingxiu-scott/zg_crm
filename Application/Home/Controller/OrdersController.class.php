@@ -350,4 +350,32 @@ class OrdersController extends Controller{
 		
 		echo json_encode($array);
 	}
+
+    /*
+  *获取年月列表
+  */
+    /*
+    *获取年月列表
+    */
+    public function getYearMonthList(){
+
+//        if(I('post.userId')){
+
+//            $userId = I('post.userId');
+
+            $order = M('orders');
+
+//            $array['u_id'] = $userId;
+             //$array['u_id'] = 1;
+
+            $res = $order->field('o_id','o_date')->select();
+
+//            $arr = array();
+
+
+
+            echo json_encode($res);
+            exit();
+        }
+//    }
 }

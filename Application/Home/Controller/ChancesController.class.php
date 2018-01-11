@@ -18,6 +18,8 @@ class ChancesController extends Controller{
         $ch_date   = I('post.ch_date','');
         $ch_money  = I('post.ch_money','');
         $ch_desc   = I('post.ch_desc','');
+        $c_id      = I('post.c_id');
+        $u_id      = I('post.userId');
 
         //组织sign
         $sign = '{ch_name:"'.$ch_name.'"},'.
@@ -40,8 +42,8 @@ class ChancesController extends Controller{
 
         //数据操作
 
-        $data['u_id'] = 1;  //写死得值
-        $data['c_id'] = 1;  //写死得值
+        $data['u_id'] = $u_id;
+        $data['c_id'] = $c_id;
 
         $data['ch_name']      = $ch_name;
         $data['c_name']       = $c_name;
