@@ -84,7 +84,6 @@ class FollowsLogController extends Controller
         }
     }
 
-
     public function edit_follow_log(){
 
         $fl_id   = I('post.fl_id','');
@@ -173,9 +172,7 @@ class FollowsLogController extends Controller
         $res = $FollowsLog->data($data)->add();
 
         if($res){
-
             $returnMessage = array('code'=> 'success', 'message' => '添加跟进成功');
-
             echo json_encode($returnMessage);
             exit;
         }else{
@@ -184,7 +181,6 @@ class FollowsLogController extends Controller
             echo json_encode($returnMessage);
             exit;
         }
-
     }
 
 }

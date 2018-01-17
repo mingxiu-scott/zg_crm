@@ -235,4 +235,55 @@ class UserController extends Controller {
         }
     }
 
+    public function getSuborinateList(){
+
+        $u_id = I('userId','1');
+        $username = I('username','');
+        $deleteId  = I('deleteId','');
+        $whereUser = array();
+        $whereUser['u_id'] = $u_id;
+        $user = M('role_user');
+        $res = $user->where($whereUser)->find();
+
+        /********************************************************/
+
+        /*删除某一位下属*/
+        if($deleteId != ''){
+
+            $data['ru_status'] = 0;
+            $b = $user->where('r_id='.$deleteId)->save($data);
+        }
+        /********/
+
+        $where = array();
+        $where['ru_status'] = 1;
+        $where['r_id'] = array('like', $res['r_id'].'_%');
+
+        if ($username != '') {
+            $where['u_name'] = array('like', "%".$username.'%');
+        }
+
+        $users = M('user_roles_view');
+        $res2 = $users->where($where)->select();
+        echo json_encode($res2);
+        exit();
+    }
+
+    public function getAllUserList(){
+
+        $username = I('username','');
+
+        if ($username != '') {
+            $where['u_name'] = array('like', $username.'%');
+        }
+
+        $user = M('users');
+
+        $res = $user->where($where)->select();
+
+        echo json_encode($res);
+
+        exit();
+    }
+
 }
